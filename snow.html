@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <title>Snow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+          overflow: hidden;
+        }
+    </style>
+  </head>
+  <body style='background: #000'>
+    <canvas id='display' width='1' height='1' />
+
+    <script>
+      function Particle(x, y, size) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+      }
+
+      Particle.prototype.draw = function() {
+        ctx.strokeStyle = "rgba(255, 255, 255, 0)";
+        ctx.lineWidth = 0;
+
+        this.y += this.size / 3;
+        this.x += ((mouse.x - (width / 2)) / 100) * (this.size / 50);
+
+        if (this.x < 0) {
+            this.x += width;
+        } else if (this.x > width) {
+            this.x = this.x % width;
+        }
+
+
+        ctx.fillStyle = "rgba(255, 255, 255, .5)";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2, true); 
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.stroke();
+      };
+      var display = document.getElementById('display');
+      var ctx = display.getContext('2d');
+      var particles = [];
+      var width = display.width = window.innerWidth;
+      var height = display.height = window.innerHeight;
+      var mouse = {
+        x: width / 2,
+        y: height / 2
+      };
+
+      display.addEventListener('mousemove', function(e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+
+      //addParticles(particles, 200);
+      requestAnimationFrame(frame);
+      function frame() {
+        requestAnimationFrame(frame);
+        ctx.clearRect(0, 0, width, height);
+        var stillVisibleParticles = [];
+        particles.forEach(function(particle) {
+            particle.draw();
+            if (particle.y - (particle.size / 2) < height) {
+                stillVisibleParticles.push(particle);
+            }
+
+        });
+
+        particles = stillVisibleParticles;
+
+        // TODO - Instead of creating new particles, just reset the old ones.
+        addParticles(particles, 800 - particles.length);
+      }
+
+      function addParticles(particleArray, numToAdd) {
+        for (var i = 0; i < numToAdd; i++) {
+          //particles[i] = new Particle(Math.random() * width, -100, Math.floor(1 + Math.random() * 100));
+          var size = 5 + 50 * Math.pow(Math.random(), 4);
+          particleArray.push(new Particle(Math.random() * width, -100 - (Math.random() * height), size));
+        }
+      }
+
+    </script>
+  </body>
+</html>
